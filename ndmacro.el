@@ -94,8 +94,8 @@
                 (not (equal list1
                             (cl-subseq list2 0 (length list1)))))
       (setq shifted (ndmacro-list-shift list1 list2)
-            list1   (first  shifted)
-            list2   (second shifted))
+            list1   (car  shifted)
+            list2   (cadr shifted))
       )
     ;; ループが終わったら,list1は｛空っぽ｜list2との先頭一致リスト｝のどっちか。
 
@@ -106,7 +106,7 @@
                (setq begin (+ begin (length list1))
                      end   (+ end   (length list1))))
              ;; 繰り返しの全体と、途中までの場合何桁目まで入力しているか？を返す
-             (values (ndmacro-util-group (cl-subseq lst 0 (min (length lst) (+ end (length list1))))
+             (cl-values (ndmacro-util-group (cl-subseq lst 0 (min (length lst) (+ end (length list1))))
                                          (length list1))
                      0
                      ;; (cl-subseq lst (+ begin (length list1))
@@ -119,10 +119,9 @@
 
 (defun ndmacro-predict-repeat (lst)
   (let* ((lst lst) ; --time-->
-         (latest-val-pos (position (first lst) lst :start 1))
+         (latest-val-pos (cl-position (first lst) lst :start 1))
          repeat-start-pos
-         repeat-end-pos
-         )
+         repeat-end-pos)
     (setq repeat-end-pos (length (ndmacro-seq-prefix-matched
                                   (cl-subseq lst 0 latest-val-pos)
                                   (cl-subseq lst latest-val-pos))))
@@ -137,8 +136,8 @@
 
 (defun ndmacro-split-seq-if (test lst)
   (let (beg end)
-    (when (setq beg (position-if     test lst :start 0))
-      (setq end (or (position-if-not test lst :start beg) (length lst)))
+    (when (setq beg (cl-position-if     test lst :start 0))
+      (setq end (or (cl-position-if-not test lst :start beg) (length lst)))
       (cons (cl-subseq lst beg end)
             (ndmacro-split-seq-if test (cl-subseq lst end))))))
 
@@ -162,7 +161,7 @@
                              (apply 'concatenate 'string
                                     (mapcar 'string l)))
                           splitted)))
-    (mapcar* 'list
+    (cl-mapcar 'list
              (mapcar #'(lambda (sub) (ndmacro-position-subseq lst sub))
                      splitted)
              (mapcar #'(lambda (n) (length n)) numbers)
@@ -176,20 +175,22 @@
          (lst2 (ndmacro-get-numbers-and-position
                 (mapcar 'ndmacro-is-number (nth 1 lst))))
          (next-number
-          (mapcar* 'list ; 位置情報もくっつけとく。
-                   lst1
-                   (mapcar* '+ ; 足すと次の数字になって↑↑
-                            (mapcar 'third lst1)
-                            (mapcar (lambda (e) (* ndmacro-repeat-count e)); 連続実行の場合は実行回数をかけて↑↑
-                                    (mapcar* '- ; 差を出して↑↑
-                                             (mapcar 'third lst1)
-                                             (mapcar 'third lst2)))
-                            )))
-         (result-seq (copy-list (first lst))))
+          (cl-mapcar 'list ; 位置情報もくっつけとく。
+                     lst1
+                     (cl-mapcar '+ ; 足すと次の数字になって↑↑
+                                (mapcar 'third lst1)
+                                (mapcar (lambda (e)
+                                          (* ndmacro-repeat-count e)) ; 連続実行の場合は実行回数をかけて↑↑
+                                        (cl-mapcar '- ; 差を出して↑↑
+                                                   (mapcar 'third lst1)
+                                                   (mapcar 'third lst2)))
+                                )))
+         (result-seq (cl-copy-list (car lst))))
     (dolist (l next-number) ;;繰り返し1つの中に複数数字がある場合に備えて
-      (let ((chars (map 'list 'identity (substring (format "000000000000000000%d" (max 0 (second l))) ;;桁数維持
-                                                   (- (cadar l))
-                                                   ))))
+      (let ((chars (cl-map 'list
+                           'identity
+                           (substring (format "000000000000000000%d" (max 0 (cadr l))) ;;桁数維持
+                                      (- (cadar l))))))
         (dotimes (n (cadar l))
           (setf (nth (+ n (caar l)) result-seq) (nth n chars)))))
 
@@ -215,7 +216,7 @@
     (setq loop-elm (reverse (nth -1 loop-all)))
 
     ;;数字が入ってたら連番増やす
-    (setq result (cond ((find-if 'ndmacro-is-number loop-elm)
+    (setq result (cond ((cl-find-if 'ndmacro-is-number loop-elm)
                         ;(message "%s" loop-all)
                         (ndmacro-get-incremented-sequence loop-all))
                        (t
