@@ -7,7 +7,7 @@
 
 ;;; Commentary:
 
-;;
+;; emacs -Q -l ndmacro.el --batch --eval '(load-file "ndmacro-test.el")'
 
 ;;; Code:
 (require 'ert)
