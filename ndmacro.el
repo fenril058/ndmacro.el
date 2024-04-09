@@ -31,7 +31,6 @@
 
 (require 'cl-lib)
 
-
 (defvar ndmacro-repeat-count 0)
 
 (defgroup ndmacro nil "New Dynamic Macro"
@@ -51,8 +50,6 @@
                      (cons source acc))))))
     (if source (rec source nil) nil)))
 
-;; (ndmacro-list-shift '(1 2 3) '(4 5 6))
-;; => ((1 2) (3 4 5 6))
 (defun ndmacro-list-shift (list1 list2)
   (list (reverse (cdr (reverse list1)))
         (cons (car (reverse list1)) list2)))
@@ -69,10 +66,6 @@
            (<= x 57))
       nil x))
 
-;; (ndmacro-seq-prefix-matched
-;;  '(2 1 0 "A" 5 4 3)
-;;  '(2 1 0 "A" "H" "O"))
-;; => (2 1 0 "A")
 (defun ndmacro-seq-prefix-matched (lst1 lst2)
   (let ((idx 0))
     ;; (message "-1:%s" lst1)
@@ -85,38 +78,9 @@
       (cl-incf idx))
     (cl-subseq lst1 0 idx)))
 
-;; (multiple-value-list (ndmacro-search-loop
-;;   '("a" "b" "a" "b" "c" "c"
-;;     "a" "b" "a" "b" "c" "c" "d" "e" "f" "g")))
-;; => ((("a" "b" "a" "b" "c" "c") ("a" "b" "a" "b" "c" "c")) 0)
-;; (ndmacro-search-loop
-;;   '("a" "b" "a" "b" "c" "-"
-;;     "a" "b" "a" "b" "c" "c" "d" "e" "f" "g"))
-;; => ((("a" "b") ("a" "b")) 0)
-;; (ndmacro-search-loop
-;;  '("a" "b"
-;;    "a" "b"))
-;; => ((("a" "b") ("a" "b")) 0)
-;; (ndmacro-search-loop
-;;  '("a" "b"
-;;    "a" "b" "a" "b"))
-;; => ((("a" "b") ("a" "b") ("a" "b")) 0)
-;; (ndmacro-search-loop
-;;  '("a" "b" "a" "b"
-;;    "a" "b" "a" "b"))
-;; => ((("a" "b" "a" "b") ("a" "b" "a" "b")) 0)
-;; (ndmacro-search-loop
-;;  '(49 48 49 44
-;;    49 48 50 44
-;;    49 48 51 44))
-;; => (((49 48 49 44) (49 48 50 44) (49 48 51 44)) 0)
-;; (ndmacro-search-loop
-;;  '(2 1 0 "A" 5 4 3 2 1 0 "A" "H" "O"))
-;; => (((5 4 3 2 1 0 "A") (5 4 3 2 1 0 "A")) 4)
-
-;; lstを半分にして、前半分と後半分が先頭一致するか見る。
-;; 一致しなければ前半分の一番後ろを後半分の先頭に持ってきて比較。以降繰り返し。
 (defun ndmacro-search-loop (lst)
+  "lstを半分にして、前半分と後半分が先頭一致するか見る。
+一致しなければ前半分の一番後ろを後半分の先頭に持ってきて比較。以降繰り返し。"
   (let* ((center-pos (floor (length lst) 2))
          (list1 (cl-subseq lst 0 center-pos))
          (list2 (cl-subseq lst center-pos))
@@ -150,12 +114,9 @@
                      )
              ))
           (t
-          ;; 完全一致の繰り返しがなければ途中までの入力から予測
+           ;; 完全一致の繰り返しがなければ途中までの入力から予測
            (ndmacro-predict-repeat lst)))))
 
-;; (ndmacro-predict-repeat
-;;  '(2 1 0 "A" 5 4 3 2 1 0 "A" "H" "O"))
-;; => ((("A" 0 1 2 3 4 5) ("A" 0 1 2 3 4 5)) 4)
 (defun ndmacro-predict-repeat (lst)
   (let* ((lst lst) ; --time-->
          (latest-val-pos (position (first lst) lst :start 1))
@@ -174,10 +135,6 @@
                                  (cl-subseq lst 0 repeat-end-pos)))
           (list repeat-end-pos))))
 
-
-;; (ndmacro-split-seq-if 'identity '(49 51 nil 49 52 nil));=> ((49 51) (49 52))
-;; (ndmacro-split-seq-if 'identity '(nil 49 51 nil 49 52 nil));=> ((49 51) (49 52))
-;; (ndmacro-split-seq-if 'identity '(nil 49 51 nil 49 52));=> ((49 51) (49 52))
 (defun ndmacro-split-seq-if (test lst)
   (let (beg end)
     (when (setq beg (position-if     test lst :start 0))
@@ -185,8 +142,6 @@
       (cons (cl-subseq lst beg end)
             (ndmacro-split-seq-if test (cl-subseq lst end))))))
 
-;; (ndmacro-position-subseq '(nil 49 51 nil 49 52) '(49 51));; => 1
-;; (ndmacro-position-subseq '(nil 49 51 nil 49 52) '(49 52));; => 4
 (defun ndmacro-position-subseq (lst sub)
   (let ((pos 0)
         (continue-flag t)
@@ -201,9 +156,6 @@
              (cl-incf pos))))
     res))
 
-;; (ndmacro-get-numbers-and-position
-;;  '(nil 49 48 51 nil 49 51 nil nil))
-;; => ((1 3 103) (5 2 13)) => 1の位置から３桁分105, 5の位置から2桁分13がある。
 (defun ndmacro-get-numbers-and-position (lst)
   (let* ((splitted (ndmacro-split-seq-if 'identity lst))
          (numbers (mapcar (lambda (l)
@@ -216,12 +168,6 @@
              (mapcar #'(lambda (n) (length n)) numbers)
              (mapcar 'string-to-number numbers))))
 
-;; (ndmacro-get-incremented-sequence
-;; '((return 65 53 49 44 52 48 49);"104,15A"
-;;   (return 65 51 49 44 51 48 49);"103,13A"
-;;   (return 65 49 49 44 50 48 49);"102,11A"
-;;   ))
-;; => (49 48 53 44 49 55 65 return);"105,17A"
 (defun ndmacro-get-incremented-sequence (lst)
   (setq lst (mapcar 'reverse lst))
   (let* (;; 数字以外nilに変えちゃう
