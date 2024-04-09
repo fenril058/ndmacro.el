@@ -72,9 +72,8 @@
     ;; (message "-2:%s" lst2)
     (while (equal (nth idx lst1)
                   (nth idx lst2))
-    ;; (message "-3:%s" lst1)
-    ;; (message "-4:%s" lst2)
-
+      ;; (message "-3:%s" lst1)
+      ;; (message "-4:%s" lst2)
       (cl-incf idx))
     (cl-subseq lst1 0 idx)))
 
@@ -107,11 +106,8 @@
                      end   (+ end   (length list1))))
              ;; 繰り返しの全体と、途中までの場合何桁目まで入力しているか？を返す
              (cl-values (ndmacro-util-group (cl-subseq lst 0 (min (length lst) (+ end (length list1))))
-                                         (length list1))
-                     0
-                     ;; (cl-subseq lst (+ begin (length list1))
-                     ;;             (+ end (length list1)))
-                     )
+                                            (length list1))
+                        0)
              ))
           (t
            ;; 完全一致の繰り返しがなければ途中までの入力から予測
@@ -128,10 +124,10 @@
     (setq repeat-start-pos (+ latest-val-pos
                               repeat-end-pos))
     (cons (list (cl-subseq lst
-                        repeat-end-pos
-                        repeat-start-pos)
+                           repeat-end-pos
+                           repeat-start-pos)
                 (append (cl-subseq lst repeat-end-pos latest-val-pos)
-                                 (cl-subseq lst 0 repeat-end-pos)))
+                        (cl-subseq lst 0 repeat-end-pos)))
           (list repeat-end-pos))))
 
 (defun ndmacro-split-seq-if (test lst)
@@ -158,14 +154,14 @@
 (defun ndmacro-get-numbers-and-position (lst)
   (let* ((splitted (ndmacro-split-seq-if 'identity lst))
          (numbers (mapcar (lambda (l)
-                             (apply 'cl-concatenate 'string
-                                    (mapcar 'string l)))
+                            (apply 'cl-concatenate 'string
+                                   (mapcar 'string l)))
                           splitted)))
     (cl-mapcar 'list
-             (mapcar #'(lambda (sub) (ndmacro-position-subseq lst sub))
-                     splitted)
-             (mapcar #'(lambda (n) (length n)) numbers)
-             (mapcar 'string-to-number numbers))))
+               (mapcar #'(lambda (sub) (ndmacro-position-subseq lst sub))
+                       splitted)
+               (mapcar #'(lambda (n) (length n)) numbers)
+               (mapcar 'string-to-number numbers))))
 
 (defun ndmacro-get-incremented-sequence (lst)
   (setq lst (mapcar 'reverse lst))
@@ -208,7 +204,7 @@
     ;; 最後にndmacroのキーを押した時以降の入力を探索対象に。
     ;; => ndmacroキーを跨いで繰り返しとみなさない
     (setq lst (cl-subseq lst 0
-                      (cl-position last-command-event lst :test 'equal)))
+                         (cl-position last-command-event lst :test 'equal)))
     ;; 繰り返しを探す
     (cl-multiple-value-setq (loop-all input-count)
       (ndmacro-search-loop lst))
@@ -217,7 +213,7 @@
 
     ;;数字が入ってたら連番増やす
     (setq result (cond ((cl-find-if 'ndmacro-is-number loop-elm)
-                        ;(message "%s" loop-all)
+                        ;; (message "%s" loop-all)
                         (ndmacro-get-incremented-sequence loop-all))
                        (t
                         loop-elm)))
@@ -244,7 +240,7 @@
     (cond ((not lst)
            (message "繰り返しが見つかりません"))
           ((not nil)
-           ;(message "繰り返しはこれです：%s" lst)
+           ;; (message "繰り返しはこれです：%s" lst)
            (execute-kbd-macro (apply 'vector lst))))))
 
 ;;; TODO:
