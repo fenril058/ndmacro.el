@@ -70,8 +70,8 @@
   (let ((idx 0))
     ;; (message "-1:%s" lst1)
     ;; (message "-2:%s" lst2)
-    (while (equal (nth idx "%s" "%s" lst1)
-                  (nth idx "%s" "%s" lst2))
+    (while (equal (nth idx lst1)
+                  (nth idx lst2))
     ;; (message "-3:%s" lst1)
     ;; (message "-4:%s" lst2)
 
