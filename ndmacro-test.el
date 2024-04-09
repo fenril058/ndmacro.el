@@ -23,9 +23,9 @@
                  (ndmacro-seq-prefix-matched
                   '(2 1 0 "A" 5 4 3) '(2 1 0 "A" "H" "O")))))
 
-(ert-deftest multiple-value-list-1 ()   ; fail
+(ert-deftest ndmacro-search-loop-0 ()   ; fail
     (should (equal '((("a" "b" "a" "b" "c" "c") ("a" "b" "a" "b" "c" "c")) 0)
-                   (multiple-value-list
+                   (cl-multiple-value-list
                     (ndmacro-search-loop
                      '("a" "b" "a" "b" "c" "c"
                        "a" "b" "a" "b" "c" "c" "d" "e" "f" "g"))))))
