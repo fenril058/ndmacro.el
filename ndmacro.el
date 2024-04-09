@@ -25,20 +25,42 @@
 ;;   (leaf ndmacro
 ;;     :hook ("C-t" . ndmacro))
 ;;
+;;
+;; History:
+;; * 1993 4/14 増井俊之 dmacro.el
+;;   Original <http://www.pitecan.com/papers/JSSSTDmacro/dmacro.el>
+;;   2024年現在もEmacs-jp comunityでメンテナンスされている。
+;;    <https://github.com/emacs-jp/dmacro>
+;;
+;; * 2002 kia ndmacro.el
+;;   dmacro.elにいわゆる連番の機能を持たせたもの
+;;   <http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
+;;   すでに存在しないが、Internet archiveで見られる。
+;;   これはEmacsではなくxyzz専用である。
+;;
+;; * 2012 snj14 ndmacro.el
+;;   xyzzのndmacro.lをEmacsに移植したもの
+;;
 
 
 ;;; Code:
 
 (require 'cl-lib)
 
-(defvar ndmacro-repeat-count 0)
-
 (defgroup ndmacro nil "New Dynamic Macro"
   :group 'convenient
   :prefix "ndmacro-")
 
+(defcustom ndmacro-key (kbd "<f9>")
+  "Key sequences for ndmacro."
+  :type 'key-sequence
+  :group 'ndmacro)
+
+(defvar ndmacro-repeat-count 0)
+
 ;; from On Lisp utility
 (defun ndmacro-util-group (source n)
+  "SOURCEを要素数Nごとにグループ化する。"
   (if (zerop n) (error "zero length"))
   (cl-labels ((rec (source acc)
                 (let ((rest (nthcdr n source)))
@@ -51,6 +73,7 @@
     (if source (rec source nil) nil)))
 
 (defun ndmacro-list-shift (list1 list2)
+  "LIST1の最後の要素をLIST2の先頭の要素にしたリストを返す。"
   (list (reverse (cdr (reverse list1)))
         (cons (car (reverse list1)) list2)))
 
@@ -68,8 +91,8 @@
 
 (defun ndmacro-seq-prefix-matched (lst1 lst2)
   (let ((idx 0))
-    ;; (message "-1:%s" lst1)
-    ;; (message "-2:%s" lst2)
+    (message "-1:%s" lst1)
+    (message "-2:%s" lst2)
     (while (equal (nth idx lst1)
                   (nth idx lst2))
       ;; (message "-3:%s" lst1)
@@ -107,8 +130,7 @@
              ;; 繰り返しの全体と、途中までの場合何桁目まで入力しているか？を返す
              (cl-values (ndmacro-util-group (cl-subseq lst 0 (min (length lst) (+ end (length list1))))
                                             (length list1))
-                        0)
-             ))
+                        0)))
           (t
            ;; 完全一致の繰り返しがなければ途中までの入力から予測
            (ndmacro-predict-repeat lst)))))
@@ -201,7 +223,7 @@
     (while (and (setq match-pos (cl-position last-command-event lst :test 'equal))
                 (= match-pos 0))
       (setq lst (cdr lst)))
-    ;; 最後にndmacroのキーを押した時以降の入力を探索対象に。
+    ;; 最後にndmacroキーを押した時以降の入力を探索対象に。
     ;; => ndmacroキーを跨いで繰り返しとみなさない
     (setq lst (cl-subseq lst 0
                          (cl-position last-command-event lst :test 'equal)))
@@ -217,13 +239,14 @@
                         (ndmacro-get-incremented-sequence loop-all))
                        (t
                         loop-elm)))
-    ;;繰り返しを予測した場合の最初のC-tの時のみ繰り返し要素の一部のみ実行
+    ;;繰り返しを予測した場合の最初のndmacroキーの時のみ繰り返し要素の一部のみ実行
     (cond ((and (= ndmacro-repeat-count 1)
                 (< 0 input-count))
            (nthcdr input-count result))
           (t result))))
 
 (defun ndmacro ()
+  "キー操作の繰返しを検出し実行する。数字の場合は連番を生成する。"
   (interactive)
   (cond ((equal real-last-command this-command)
          (cl-incf ndmacro-repeat-count))

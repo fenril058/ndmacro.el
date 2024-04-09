@@ -13,6 +13,10 @@
 (require 'ert)
 (require 'ndmacro)
 
+(ert-deftest ndmacro-util-group-1 ()
+  (should (equal '((1 2 3) (4 5 6) (7 8 9))
+                 (ndmacro-util-group '(1 2 3 4 5 6 7 8 9) 3))))
+
 (ert-deftest ndmacro-list-shift-1 ()
   (should (equal '((1 2) (3 4 5 6))
                  (ndmacro-list-shift
