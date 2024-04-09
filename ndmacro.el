@@ -119,7 +119,7 @@
 
 (defun ndmacro-predict-repeat (lst)
   (let* ((lst lst) ; --time-->
-         (latest-val-pos (cl-position (first lst) lst :start 1))
+         (latest-val-pos (cl-position (cl-first lst) lst :start 1))
          repeat-start-pos
          repeat-end-pos)
     (setq repeat-end-pos (length (ndmacro-seq-prefix-matched
@@ -146,7 +146,7 @@
         (continue-flag t)
         res)
     (while (and continue-flag
-                (setq pos (position (first sub) lst :start pos)))
+                (setq pos (cl-position (cl-first sub) lst :start pos)))
       (cond ((equal (cl-subseq lst pos (+ pos (length sub)))
                     sub)
              (setq res pos)
@@ -158,7 +158,7 @@
 (defun ndmacro-get-numbers-and-position (lst)
   (let* ((splitted (ndmacro-split-seq-if 'identity lst))
          (numbers (mapcar (lambda (l)
-                             (apply 'concatenate 'string
+                             (apply 'cl-concatenate 'string
                                     (mapcar 'string l)))
                           splitted)))
     (cl-mapcar 'list
@@ -202,13 +202,13 @@
         loop-elm loop-all input-count result match-pos)
     ;; 繰り返しとみなさないものを除外：
     ;; 直近のndmacroキーを除外した上で、
-    (while (and (setq match-pos (position last-command-event lst :test 'equal))
+    (while (and (setq match-pos (cl-position last-command-event lst :test 'equal))
                 (= match-pos 0))
       (setq lst (cdr lst)))
     ;; 最後にndmacroのキーを押した時以降の入力を探索対象に。
     ;; => ndmacroキーを跨いで繰り返しとみなさない
     (setq lst (cl-subseq lst 0
-                      (position last-command-event lst :test 'equal)))
+                      (cl-position last-command-event lst :test 'equal)))
     ;; 繰り返しを探す
     (cl-multiple-value-setq (loop-all input-count)
       (ndmacro-search-loop lst))
