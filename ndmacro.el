@@ -25,23 +25,25 @@
 ;;   (leaf ndmacro
 ;;     :hook ("C-t" . ndmacro))
 ;;
+;; Related cod:
+;; * dmacro.el (original version)
+;;   written by 増井俊之 <masui@ptiecan.com> & 太和田誠 on 1993-03-14
+;;   and extented for XEmacs by 小畑英司 & 峰伸行 on 2022-03
+;;   <http://www.pitecan.com/papers/JSSSTDmacro/dmacro.el>
 ;;
-;; History:
-;; * 1993 4/14 増井俊之 dmacro.el
-;;   Original <http://www.pitecan.com/papers/JSSSTDmacro/dmacro.el>
-;;   2024年現在もEmacs-jp comunityでメンテナンスされている。
-;;    <https://github.com/emacs-jp/dmacro>
+;; * dmacro.el (emacs-jp version)
+;;   Import the original version on 2017-10-21
+;;   and developed and maintained by USAMI Kenta <tadsan@zonu.me>
+;;   <https://github.com/emacs-jp/dmacro>
 ;;
-;; * 2002 kia ndmacro.el
-;;   dmacro.elにいわゆる連番の機能を持たせたもの。
-;;   <http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
-;;   すでに存在しないが、Internet archiveで見られる。
-;;   <https://web.archive.org/web/20190329155757/http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
-;;   これはEmacsではなくxyzz専用である。
+;; * ndmacro.l
+;;   written by kia on 2003-06-30
+;;   <https://web.archive.org/web/20190330074136/http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
 ;;
-;; * 2012 snj14 ndmacro.el
-;;   xyzzのndmacro.lをEmacsに移植したもの。
+;; * ndmacro.el
+;;   written by snj14 on 2012-02-08
 ;;   <https://github.com/snj14/ndmacro.el>
+;;
 
 
 
@@ -53,8 +55,8 @@
   :group 'convenient
   :prefix "ndmacro-")
 
-(defcustom ndmacro-key (kbd "<f9>")
-  "Key sequences for ndmacro."
+(defcustom ndmacro-key (kbd "C-t")
+  "Key sequences for dmacro."
   :type 'key-sequence
   :group 'ndmacro)
 
@@ -62,7 +64,7 @@
 
 ;; from On Lisp utility
 (defun ndmacro-util-group (source n)
-  "SOURCEを要素数Nごとにグループ化する。"
+  "List SOURCEをN個ずつ分けたlistにする。"
   (if (zerop n) (error "zero length"))
   (cl-labels ((rec (source acc)
                 (let ((rest (nthcdr n source)))
@@ -80,18 +82,21 @@
         (cons (car (reverse list1)) list2)))
 
 (defun ndmacro-is-number (x)
+  "XがASCIIで数字に該当しないときnilをそれ以外はX自身を返す。"
   (if (and (numberp x)
            (<= 48 x)
            (<= x 57))
       x nil))
 
 (defun ndmacro-is-not-number (x)
+  "XがASCIIで数字に該当するときnilをそれ以外はX自身を返す。"
   (if (and (numberp x)
            (<= 48 x)
            (<= x 57))
       nil x))
 
 (defun ndmacro-seq-prefix-matched (lst1 lst2)
+  "LST1の末尾をLST2の先頭に移動した2つのlistを要素に持つlistを返す。"
   (let ((idx 0))
     (message "-1:%s" lst1)
     (message "-2:%s" lst2)
