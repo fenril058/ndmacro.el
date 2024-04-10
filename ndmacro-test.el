@@ -118,4 +118,4 @@
 (ert-run-tests-batch-and-exit)
 
 (provide 'ndmacro-test)
-;;; ndmacro-test.el ends he
+;;; ndmacro-test.el ends here
