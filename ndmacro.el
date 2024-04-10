@@ -250,6 +250,7 @@
            (nthcdr input-count result))
           (t result))))
 
+;;;###autoload
 (defun ndmacro ()
   "キー操作の繰返しを検出し実行する。数字の場合は連番を生成する。"
   (interactive)
