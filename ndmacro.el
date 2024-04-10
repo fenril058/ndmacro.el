@@ -55,11 +55,6 @@
   :group 'convenient
   :prefix "ndmacro-")
 
-(defcustom ndmacro-key (kbd "C-t")
-  "Key sequences for dmacro."
-  :type 'key-sequence
-  :group 'ndmacro)
-
 (defvar ndmacro-repeat-count 0)
 
 ;; from On Lisp utility
@@ -271,7 +266,7 @@
   ;;                )
   (let ((lst (ndmacro-get-key-list)))
     (cond ((not lst)
-           (message "繰り返しが見つかりません"))
+           (user-error "繰り返しが見つかりません。"))
           ((not nil)
            ;; (message "繰り返しはこれです：%s" lst)
            (execute-kbd-macro (apply 'vector lst))))))
