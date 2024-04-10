@@ -27,13 +27,13 @@
 ;;
 ;; Related cod:
 ;; * dmacro.el (original version)
-;;   written by 増井俊之 & 太和田誠 on 1993-03-14
+;;   written by 増井俊之 <masui@ptiecan.com> & 太和田誠 on 1993-03-14
 ;;   and extented for XEmacs by 小畑英司 & 峰伸行 on 2022-03
 ;;   <http://www.pitecan.com/papers/JSSSTDmacro/dmacro.el>
 ;;
 ;; * dmacro.el (emacs-jp version)
 ;;   Import the original version on 2017-10-21
-;;   and developed and maintained by USAMI Kenta
+;;   and developed and maintained by USAMI Kenta <tadsan@zonu.me>
 ;;   <https://github.com/emacs-jp/dmacro>
 ;;
 ;; * ndmacro.l
