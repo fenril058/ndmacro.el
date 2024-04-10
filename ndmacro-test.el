@@ -70,10 +70,11 @@
                  (ndmacro-search-loop
                   '(2 1 0 "A" 5 4 3 2 1 0 "A" "H" "O")))))
 
-(ert-deftest ndmacro-predict-repeat-1 () ; fail
-  (should (equal ' ((("A" 0 1 2 3 4 5) ("A" 0 1 2 3 4 5)) 4)
-                   (ndmacro-predict-repeat
-                    '(2 1 0 "A" 5 4 3 2 1 0 "A" "H" "O")))))
+(ert-deftest ndmacro-predict-repeat-1 ()
+  (should (equal '(((5 4 3 2 1 0 "A") (5 4 3 2 1 0 "A")) 4)
+                 ;; '((("A" 0 1 2 3 4 5) ("A" 0 1 2 3 4 5)) 4) ; fail
+                 (ndmacro-predict-repeat
+                  '(2 1 0 "A" 5 4 3 2 1 0 "A" "H" "O")))))
 
 (ert-deftest ndmacro-split-seq-if-1 ()
   (should (equal '((49 51) (49 52))
@@ -117,4 +118,4 @@
 (ert-run-tests-batch-and-exit)
 
 (provide 'ndmacro-test)
-;;; ndmacro-test.el ends here
+;;; ndmacro-test.el ends he

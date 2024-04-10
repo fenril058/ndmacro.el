@@ -6,8 +6,8 @@
 ;; Maintainer: ril <fenril.nh@gmail.com>
 ;; Version: 0.1.0
 ;; Keywords: convenience
-;; URL: https://github.com/snj14/ndmacro.el
-;; Package-Requires: ((emacs "24.1") (cl-lib "0.6"))
+;; URL: https://github.com/fenril058/ndmacro.el
+;; Package-Requires: ((emacs "24.3"))
 
 ;; SPDX-License-Identifier: MIT
 
@@ -33,14 +33,16 @@
 ;;    <https://github.com/emacs-jp/dmacro>
 ;;
 ;; * 2002 kia ndmacro.el
-;;   dmacro.elにいわゆる連番の機能を持たせたもの
+;;   dmacro.elにいわゆる連番の機能を持たせたもの。
 ;;   <http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
 ;;   すでに存在しないが、Internet archiveで見られる。
+;;   <https://web.archive.org/web/20190329155757/http://www.geocities.jp/kiaswebsite/xyzzy/ndmacro.l.txt>
 ;;   これはEmacsではなくxyzz専用である。
 ;;
 ;; * 2012 snj14 ndmacro.el
-;;   xyzzのndmacro.lをEmacsに移植したもの
-;;
+;;   xyzzのndmacro.lをEmacsに移植したもの。
+;;   <https://github.com/snj14/ndmacro.el>
+
 
 
 ;;; Code:
@@ -136,21 +138,24 @@
            (ndmacro-predict-repeat lst)))))
 
 (defun ndmacro-predict-repeat (lst)
-  (let* ((lst lst) ; --time-->
+  (let* ((lst lst)                      ; --time-->
          (latest-val-pos (cl-position (cl-first lst) lst :start 1))
          repeat-start-pos
          repeat-end-pos)
-    (setq repeat-end-pos (length (ndmacro-seq-prefix-matched
-                                  (cl-subseq lst 0 latest-val-pos)
-                                  (cl-subseq lst latest-val-pos))))
-    (setq repeat-start-pos (+ latest-val-pos
-                              repeat-end-pos))
-    (cons (list (cl-subseq lst
-                           repeat-end-pos
-                           repeat-start-pos)
-                (append (cl-subseq lst repeat-end-pos latest-val-pos)
-                        (cl-subseq lst 0 repeat-end-pos)))
-          (list repeat-end-pos))))
+    (if (null latest-val-pos)
+        (user-error "There seems to be no repetitive operation.")
+      (setq repeat-end-pos (length (ndmacro-seq-prefix-matched
+                                    (cl-subseq lst 0 latest-val-pos)
+                                    (cl-subseq lst latest-val-pos))))
+      (setq repeat-start-pos (+ latest-val-pos
+                                repeat-end-pos))
+      (cons (list (cl-subseq lst
+                             repeat-end-pos
+                             repeat-start-pos)
+                  (append (cl-subseq lst repeat-end-pos latest-val-pos)
+                          (cl-subseq lst 0 repeat-end-pos)))
+            (list repeat-end-pos)))
+    ))
 
 (defun ndmacro-split-seq-if (test lst)
   (let (beg end)
