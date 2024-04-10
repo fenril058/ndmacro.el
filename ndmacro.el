@@ -2,7 +2,7 @@
 ;;
 ;; Version: $Id: ndmacro.el, v 0.0 2022/07/11 $
 
-(eval-when-compile (require 'cl))
+(require 'cl-lib)
 
 (defvar *ndmacro-repeat-count* 0)
 (defvar *ndmacro-previous-steps* nil)
@@ -14,7 +14,7 @@
              (let ((rest (nthcdr n source)))
                (if (consp rest)
                    (rec rest (cons
-                              (subseq source 0 n)
+                              (cl-subseq source 0 n)
                               acc))
                    (nreverse
                     (cons source acc))))))
@@ -46,13 +46,13 @@
   (let ((idx 0))
     ;; (message "-1:%s" lst1)
     ;; (message "-2:%s" lst2)
-    (while (equal (nth idx "%s" "%s" lst1)
-                  (nth idx "%s" "%s" lst2))
+    (while (equal (nth idx lst1)
+                  (nth idx lst2))
     ;; (message "-3:%s" lst1)
     ;; (message "-4:%s" lst2)
 
-      (incf idx))
-    (subseq lst1 0 idx)))
+      (cl-incf idx))
+    (cl-subseq lst1 0 idx)))
 
 ;; (multiple-value-list (ndmacro:search-loop
 ;;   '("a" "b" "a" "b" "c" "c"
@@ -87,8 +87,8 @@
 ;; 一致しなければ前半分の一番後ろを後半分の先頭に持ってきて比較。以降繰り返し。
 (defun ndmacro:search-loop (lst)
   (let* ((center-pos (floor (length lst) 2))
-         (list1 (subseq lst 0 center-pos))
-         (list2 (subseq lst center-pos))
+         (list1 (cl-subseq lst 0 center-pos))
+         (list2 (cl-subseq lst center-pos))
          shifted)
     ;; 数字[0-9]同士は同じものとみなす。あとから差を出して連番生成できるように。
     (setq list1 (mapcar 'ndmacro:is-not-number list1))
@@ -97,24 +97,24 @@
     (while (and list1 ;; list1が残ってれば続ける
                 ;; list1,list2が異なれば続ける
                 (not (equal list1
-                            (subseq list2 0 (length list1)))))
+                            (cl-subseq list2 0 (length list1)))))
       (setq shifted (ndmacro:list-shift list1 list2)
-            list1   (first  shifted)
-            list2   (second shifted))
+            list1   (car  shifted)
+            list2   (cadr shifted))
       )
     ;; ループが終わったら,list1は｛空っぽ｜list2との先頭一致リスト｝のどっちか。
 
     (cond (list1
            (let ((begin 0)
                  (end   (length list1)))
-             (while (equal list1 (subseq list2 begin (min (length list2) end)))
+             (while (equal list1 (cl-subseq list2 begin (min (length list2) end)))
                (setq begin (+ begin (length list1))
                      end   (+ end   (length list1))))
              ;; 繰り返しの全体と、途中までの場合何桁目まで入力しているか？を返す
-             (values (ndmacro:util-group (subseq lst 0 (min (length lst) (+ end (length list1))))
+             (cl-values (ndmacro:util-group (cl-subseq lst 0 (min (length lst) (+ end (length list1))))
                                          (length list1))
                      0
-                     ;; (subseq lst (+ begin (length list1))
+                     ;; (cl-subseq lst (+ begin (length list1))
                      ;;             (+ end (length list1)))
                      )
              ))
@@ -127,20 +127,20 @@
 ;; => ((("A" 0 1 2 3 4 5) ("A" 0 1 2 3 4 5)) 4)
 (defun ndmacro:predict-repeat (lst)
   (let* ((lst lst) ; --time-->
-         (latest-val-pos (position (first lst) lst :start 1))
+         (latest-val-pos (cl-position (car lst) lst :start 1))
          repeat-start-pos
          repeat-end-pos
          )
     (setq repeat-end-pos (length (ndmacro:seq-prefix-matched
-                                  (subseq lst 0 latest-val-pos)
-                                  (subseq lst latest-val-pos))))
+                                  (cl-subseq lst 0 latest-val-pos)
+                                  (cl-subseq lst latest-val-pos))))
     (setq repeat-start-pos (+ latest-val-pos
                               repeat-end-pos))
-    (cons (list (subseq lst
+    (cons (list (cl-subseq lst
                         repeat-end-pos
                         repeat-start-pos)
-                (append (subseq lst repeat-end-pos latest-val-pos)
-                                 (subseq lst 0 repeat-end-pos)))
+                (append (cl-subseq lst repeat-end-pos latest-val-pos)
+                                 (cl-subseq lst 0 repeat-end-pos)))
           (list repeat-end-pos))))
 
 
@@ -149,10 +149,10 @@
 ;; (ndmacro:split-seq-if 'identity '(nil 49 51 nil 49 52));=> ((49 51) (49 52))
 (defun ndmacro:split-seq-if (test lst)
   (let (beg end)
-    (when (setq beg (position-if     test lst :start 0))
-      (setq end (or (position-if-not test lst :start beg) (length lst)))
-      (cons (subseq lst beg end)
-            (ndmacro:split-seq-if test (subseq lst end))))))
+    (when (setq beg (cl-position-if     test lst :start 0))
+      (setq end (or (cl-position-if-not test lst :start beg) (length lst)))
+      (cons (cl-subseq lst beg end)
+            (ndmacro:split-seq-if test (cl-subseq lst end))))))
 
 ;; (ndmacro:position-subseq '(nil 49 51 nil 49 52) '(49 51));; => 1
 ;; (ndmacro:position-subseq '(nil 49 51 nil 49 52) '(49 52));; => 4
@@ -161,13 +161,13 @@
         (continue-flag t)
         res)
     (while (and continue-flag
-                (setq pos (position (first sub) lst :start pos)))
-      (cond ((equal (subseq lst pos (+ pos (length sub)))
+                (setq pos (cl-position (car sub) lst :start pos)))
+      (cond ((equal (cl-subseq lst pos (+ pos (length sub)))
                     sub)
              (setq res pos)
              (setq continue-flag nil))
             (t
-             (incf pos))))
+             (cl-incf pos))))
     res))
 
 ;; (ndmacro:get-numbers-and-position
@@ -176,10 +176,10 @@
 (defun ndmacro:get-numbers-and-position (lst)
   (let* ((splitted (ndmacro:split-seq-if 'identity lst))
          (numbers (mapcar (lambda (l)
-                             (apply 'concatenate 'string
+                             (apply 'cl-concatenate 'string
                                     (mapcar 'string l)))
                           splitted)))
-    (mapcar* 'list
+    (cl-mapcar 'list
              (mapcar #'(lambda (sub) (ndmacro:position-subseq lst sub))
                      splitted)
              (mapcar #'(lambda (n) (length n)) numbers)
@@ -199,18 +199,18 @@
          (lst2 (ndmacro:get-numbers-and-position
                 (mapcar 'ndmacro:is-number (nth 1 lst))))
          (next-number
-          (mapcar* 'list ; 位置情報もくっつけとく。
+          (cl-mapcar 'list ; 位置情報もくっつけとく。
                    lst1
-                   (mapcar* '+ ; 足すと次の数字になって↑↑
+                   (cl-mapcar '+ ; 足すと次の数字になって↑↑
                             (mapcar 'third lst1)
                             (mapcar (lambda (e) (* *ndmacro-repeat-count* e)); 連続実行の場合は実行回数をかけて↑↑
-                                    (mapcar* '- ; 差を出して↑↑
+                                    (cl-mapcar '- ; 差を出して↑↑
                                              (mapcar 'third lst1)
                                              (mapcar 'third lst2)))
                             )))
-         (result-seq (copy-list (first lst))))
+         (result-seq (copy-list (car lst))))
     (dolist (l next-number) ;;繰り返し1つの中に複数数字がある場合に備えて
-      (let ((chars (map 'list 'identity (substring (format "000000000000000000%d" (max 0 (second l))) ;;桁数維持
+      (let ((chars (map 'list 'identity (substring (format "000000000000000000%d" (max 0 (cadr l))) ;;桁数維持
                                                    (- (cadar l))
                                                    ))))
         (dotimes (n (cadar l))
@@ -224,13 +224,13 @@
         loop-elm loop-all input-count result match-pos)
     ;; 繰り返しとみなさないものを除外：
     ;; 直近のndmacroキーを除外した上で、
-    (while (and (setq match-pos (position last-command-event lst :test 'equal))
+    (while (and (setq match-pos (cl-position last-command-event lst :test 'equal))
                 (= match-pos 0))
       (setq lst (cdr lst)))
     ;; 最後にndmacroのキーを押した時以降の入力を探索対象に。
     ;; => ndmacroキーを跨いで繰り返しとみなさない
-    (setq lst (subseq lst 0
-                      (position last-command-event lst :test 'equal)))
+    (setq lst (cl-subseq lst 0
+                      (cl-position last-command-event lst :test 'equal)))
     ;; 繰り返しを探す
     (multiple-value-setq (loop-all input-count)
       (ndmacro:search-loop lst))
@@ -252,7 +252,7 @@
 (defun ndmacro ()
   (interactive)
   (cond ((equal real-last-command this-command)
-         (incf *ndmacro-repeat-count*))
+         (cl-incf *ndmacro-repeat-count*))
         (t
          (setq *ndmacro-repeat-count* 1)))
   ;; (message "lc:%s tc:%s lce:%c tck:%s lcc:%c lie:%c lef:%s"
