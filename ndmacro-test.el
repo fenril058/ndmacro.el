@@ -105,12 +105,12 @@
                   '(nil 49 48 51 nil 49 51 nil nil)))))
 
 (ert-deftest ndmacro:get-incremented-sequence-1 () ; fail
-    (equal '(49 48 53 44 49 55 65 return) ;"105,17A"
-           (ndmacro:get-incremented-sequence
-            '((return 65 53 49 44 52 48 49) ;"104,15A"
-              (return 65 51 49 44 51 48 49) ;"103,13A"
-              (return 65 49 49 44 50 48 49) ;"102,11A"
-              ))))
+  (should (equal '(49 48 53 44 49 55 65 return)           ;"105,17A"
+                 (ndmacro:get-incremented-sequence
+                  '((return 65 53 49 44 52 48 49)  ;"104,15A"
+                    (return 65 51 49 44 51 48 49)  ;"103,13A"
+                    (return 65 49 49 44 50 48 49)  ;"102,11A"
+                    )))))
 
 (ert-run-tests-batch-and-exit)
 

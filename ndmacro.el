@@ -202,15 +202,15 @@
           (cl-mapcar 'list ; 位置情報もくっつけとく。
                    lst1
                    (cl-mapcar '+ ; 足すと次の数字になって↑↑
-                            (mapcar 'third lst1)
+                            (mapcar 'cl-third lst1)
                             (mapcar (lambda (e) (* *ndmacro-repeat-count* e)); 連続実行の場合は実行回数をかけて↑↑
                                     (cl-mapcar '- ; 差を出して↑↑
-                                             (mapcar 'third lst1)
-                                             (mapcar 'third lst2)))
+                                             (mapcar 'cl-third lst1)
+                                             (mapcar 'cl-third lst2)))
                             )))
-         (result-seq (copy-list (car lst))))
+         (result-seq (cl-copy-list (car lst))))
     (dolist (l next-number) ;;繰り返し1つの中に複数数字がある場合に備えて
-      (let ((chars (map 'list 'identity (substring (format "000000000000000000%d" (max 0 (cadr l))) ;;桁数維持
+      (let ((chars (cl-map 'list 'identity (substring (format "000000000000000000%d" (max 0 (cadr l))) ;;桁数維持
                                                    (- (cadar l))
                                                    ))))
         (dotimes (n (cadar l))
